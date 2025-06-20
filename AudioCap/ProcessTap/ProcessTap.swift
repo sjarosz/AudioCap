@@ -9,13 +9,15 @@ final class ProcessTap {
     typealias InvalidationHandler = (ProcessTap) -> Void
 
     let process: AudioProcess
+    let microphone: AudioDevice?
     let muteWhenRunning: Bool
     private let logger: Logger
 
     private(set) var errorMessage: String? = nil
 
-    init(process: AudioProcess, muteWhenRunning: Bool = false) {
+    init(process: AudioProcess, microphone: AudioDevice? = nil, muteWhenRunning: Bool = false) {
         self.process = process
+        self.microphone = microphone
         self.muteWhenRunning = muteWhenRunning
         self.logger = Logger(subsystem: kAppSubsystem, category: "\(String(describing: ProcessTap.self))(\(process.name))")
     }
@@ -110,6 +112,14 @@ final class ProcessTap {
 
         let aggregateUID = UUID().uuidString
 
+        var subdevices: [[String: Any]] = [
+            [ kAudioSubDeviceUIDKey: outputUID ]
+        ]
+
+        if let microphone {
+            subdevices.append([ kAudioSubDeviceUIDKey: microphone.uid ])
+        }
+
         let description: [String: Any] = [
             kAudioAggregateDeviceNameKey: "Tap-\(process.id)",
             kAudioAggregateDeviceUIDKey: aggregateUID,
@@ -117,11 +127,7 @@ final class ProcessTap {
             kAudioAggregateDeviceIsPrivateKey: true,
             kAudioAggregateDeviceIsStackedKey: false,
             kAudioAggregateDeviceTapAutoStartKey: true,
-            kAudioAggregateDeviceSubDeviceListKey: [
-                [
-                    kAudioSubDeviceUIDKey: outputUID
-                ]
-            ],
+            kAudioAggregateDeviceSubDeviceListKey: subdevices,
             kAudioAggregateDeviceTapListKey: [
                 [
                     kAudioSubTapDriftCompensationKey: true,
@@ -139,6 +145,16 @@ final class ProcessTap {
         }
 
         logger.debug("Created aggregate device #\(self.aggregateDeviceID, privacy: .public)")
+    }
+
+    func readAggregateStreamBasicDescription() throws -> AudioStreamBasicDescription? {
+        guard aggregateDeviceID.isValid else { return nil }
+
+        return try aggregateDeviceID.read(
+            kAudioDevicePropertyStreamFormat,
+            scope: kAudioObjectPropertyScopeOutput,
+            defaultValue: AudioStreamBasicDescription()
+        )
     }
 
     func run(on queue: DispatchQueue, ioBlock: @escaping AudioDeviceIOBlock, invalidationHandler: @escaping InvalidationHandler) throws {
@@ -205,7 +221,7 @@ final class ProcessTapRecorder {
 
         if !tap.activated { tap.activate() }
 
-        guard var streamDescription = tap.tapStreamDescription else {
+        guard var streamDescription = try tap.readAggregateStreamBasicDescription() else {
             throw "Tap stream description not available."
         }
 

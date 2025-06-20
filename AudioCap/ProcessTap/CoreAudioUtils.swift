@@ -28,6 +28,11 @@ extension AudioObjectID {
         try AudioObjectID.system.readProcessList()
     }
 
+    /// Reads `kAudioHardwarePropertyDevices`.
+    static func readDeviceList() throws -> [AudioObjectID] {
+        try AudioObjectID.system.readDeviceList()
+    }
+
     /// Reads `kAudioHardwarePropertyTranslatePIDToProcessObject` for the specific pid.
     static func translatePIDToProcessObjectID(pid: pid_t) throws -> AudioObjectID {
         try AudioDeviceID.system.translatePIDToProcessObjectID(pid: pid)
@@ -114,6 +119,48 @@ extension AudioObjectID {
     /// Reads the value for `kAudioTapPropertyFormat` for the device represented by this audio object ID.
     func readAudioTapStreamBasicDescription() throws -> AudioStreamBasicDescription {
         try read(kAudioTapPropertyFormat, defaultValue: AudioStreamBasicDescription())
+    }
+
+    /// Reads the value for `kAudioObjectPropertyName` for the device represented by this audio object ID.
+    func readDeviceName() throws -> String { try readString(kAudioObjectPropertyName) }
+
+    /// Checks if the audio object has any input streams.
+    func isInputDevice() -> Bool {
+        var address = AudioObjectPropertyAddress(
+            mSelector: kAudioDevicePropertyStreamConfiguration,
+            mScope: kAudioObjectPropertyScopeInput,
+            mElement: kAudioObjectPropertyElementMain
+        )
+
+        var dataSize: UInt32 = 0
+        let err = AudioObjectGetPropertyDataSize(self, &address, 0, nil, &dataSize)
+
+        return err == noErr && dataSize > 0
+    }
+
+    /// Reads `kAudioHardwarePropertyDevices`.
+    func readDeviceList() throws -> [AudioObjectID] {
+        try requireSystemObject()
+
+        var address = AudioObjectPropertyAddress(
+            mSelector: kAudioHardwarePropertyDevices,
+            mScope: kAudioObjectPropertyScopeGlobal,
+            mElement: kAudioObjectPropertyElementMain
+        )
+
+        var dataSize: UInt32 = 0
+
+        var err = AudioObjectGetPropertyDataSize(self, &address, 0, nil, &dataSize)
+
+        guard err == noErr else { throw "Error reading data size for \(address): \(err)" }
+
+        var value = [AudioObjectID](repeating: .unknown, count: Int(dataSize) / MemoryLayout<AudioObjectID>.size)
+
+        err = AudioObjectGetPropertyData(self, &address, 0, nil, &dataSize, &value)
+
+        guard err == noErr else { throw "Error reading array for \(address): \(err)" }
+
+        return value
     }
 
     private func requireSystemObject() throws {

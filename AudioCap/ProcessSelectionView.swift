@@ -3,9 +3,11 @@ import SwiftUI
 @MainActor
 struct ProcessSelectionView: View {
     @State private var processController = AudioProcessController()
+    @State private var inputController = AudioInputController()
     @State private var tap: ProcessTap?
     @State private var recorder: ProcessTapRecorder?
     @State private var selectedProcess: AudioProcess?
+    @State private var selectedMicrophone: AudioDevice?
     @State private var timer: Timer? = nil
     @State private var errorMessage: String? = nil
     @State private var showOtherProcesses = false
@@ -51,6 +53,7 @@ struct ProcessSelectionView: View {
             .frame(minHeight: 300)
             .onAppear {
                 processController.activate()
+                inputController.activate()
                 startPolling()
             }
             .onDisappear {
@@ -84,11 +87,22 @@ struct ProcessSelectionView: View {
             Text(process.name)
                 .font(.body)
             Spacer()
-            // Indicator for audio activity
-            Circle()
-                .fill(process.audioActive ? Color.green : Color.gray)
-                .frame(width: 12, height: 12)
-                .padding(.trailing, 4)
+            HStack {
+                Picker("Mic", selection: $selectedMicrophone) {
+                    Text("No Mic").tag(nil as AudioDevice?)
+                    ForEach(inputController.devices) { device in
+                        Text(device.name).tag(device as AudioDevice?)
+                    }
+                }
+                .labelsHidden()
+                .frame(maxWidth: 150)
+
+                // Indicator for audio activity
+                Circle()
+                    .fill(process.audioActive ? Color.green : Color.gray)
+                    .frame(width: 12, height: 12)
+                    .padding(.trailing, 4)
+            }
             // Record button only if process is active
             if process.audioActive {
                 if let recorder, recorder.isRecording, recorder.process.id == process.id {
@@ -120,7 +134,7 @@ struct ProcessSelectionView: View {
     }
 
     private func startRecording(for process: AudioProcess) {
-        let newTap = ProcessTap(process: process)
+        let newTap = ProcessTap(process: process, microphone: selectedMicrophone)
         self.tap = newTap
         newTap.activate()
         let filename = "\(process.name)-\(Int(Date.now.timeIntervalSinceReferenceDate))"
