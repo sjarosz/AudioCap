@@ -8,6 +8,11 @@ struct ProcessSelectionView: View {
     @State private var selectedProcess: AudioProcess?
     @State private var timer: Timer? = nil
     @State private var errorMessage: String? = nil
+    @State private var showOtherProcesses = false
+    // Approved process names for streaming/meeting/recording apps
+    private let approvedProcessNames: Set<String> = [
+        "zoom.us", "Zoom", "Microsoft Teams", "Teams", "Webex", "Cisco Webex Meetings", "Google Chrome", "Google Meet", "Hangouts", "Slack", "QuickTime Player", "quicktime", "QuickTime"
+    ]
 
     var body: some View {
         VStack(alignment: .leading) {
@@ -15,42 +20,30 @@ struct ProcessSelectionView: View {
                 .font(.headline)
                 .padding(.bottom, 4)
             List {
-                ForEach(processController.processGroups) { group in
-                    Section(header: Text(group.title)) {
-                        ForEach(group.processes.filter { $0.id != ProcessInfo.processInfo.processIdentifier }) { process in
-                            HStack {
-                                Image(nsImage: process.icon)
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fit)
-                                    .frame(width: 16, height: 16)
-                                Text(process.name)
-                                    .font(.body)
-                                Spacer()
-                                // Indicator for audio activity
-                                Circle()
-                                    .fill(process.audioActive ? Color.green : Color.gray)
-                                    .frame(width: 12, height: 12)
-                                    .padding(.trailing, 4)
-                                // Record button only if process is active
-                                if process.audioActive {
-                                    if let recorder, recorder.isRecording, recorder.process.id == process.id {
-                                        // Pulsating/animated record icon for active recording
-                                        PulsatingRecordButton(action: { recorder.stop() }, showFile: {
-                                            NSWorkspace.shared.activateFileViewerSelecting([recorder.fileURL])
-                                        })
-                                    } else {
-                                        // Static record icon for ready to record
-                                        Button(action: {
-                                            startRecording(for: process)
-                                        }) {
-                                            Image(systemName: "record.circle")
-                                                .foregroundColor(.red)
-                                        }
-                                        .buttonStyle(BorderlessButtonStyle())
-                                    }
-                                }
+                // Common Meeting Apps Section
+                Section(header: Text("Common Meeting Apps")) {
+                    ForEach(processController.processGroups) { group in
+                        ForEach(group.processes
+                            .filter { $0.id != ProcessInfo.processInfo.processIdentifier }
+                            .filter { process in
+                                approvedProcessNames.contains(where: { approved in
+                                    process.name.localizedCaseInsensitiveContains(approved)
+                                })
                             }
+                        ) { process in
+                            processRow(process)
                         }
+                    }
+                }
+                // Other Audio Processes Section (collapsible)
+                if !otherProcesses.isEmpty {
+                    DisclosureGroup(isExpanded: $showOtherProcesses) {
+                        ForEach(otherProcesses) { process in
+                            processRow(process)
+                        }
+                    } label: {
+                        Text("Other Audio Processes")
+                            .font(.subheadline)
                     }
                 }
             }
@@ -78,6 +71,52 @@ struct ProcessSelectionView: View {
                     }
                 }
         }
+    }
+
+    // Helper to build a process row
+    @ViewBuilder
+    private func processRow(_ process: AudioProcess) -> some View {
+        HStack {
+            Image(nsImage: process.icon)
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(width: 16, height: 16)
+            Text(process.name)
+                .font(.body)
+            Spacer()
+            // Indicator for audio activity
+            Circle()
+                .fill(process.audioActive ? Color.green : Color.gray)
+                .frame(width: 12, height: 12)
+                .padding(.trailing, 4)
+            // Record button only if process is active
+            if process.audioActive {
+                if let recorder, recorder.isRecording, recorder.process.id == process.id {
+                    PulsatingRecordButton(action: { recorder.stop() }, showFile: {
+                        NSWorkspace.shared.activateFileViewerSelecting([recorder.fileURL])
+                    })
+                } else {
+                    Button(action: {
+                        startRecording(for: process)
+                    }) {
+                        Image(systemName: "record.circle")
+                            .foregroundColor(.red)
+                    }
+                    .buttonStyle(BorderlessButtonStyle())
+                }
+            }
+        }
+    }
+
+    // Computed property for other processes
+    private var otherProcesses: [AudioProcess] {
+        processController.processGroups.flatMap { $0.processes }
+            .filter { $0.id != ProcessInfo.processInfo.processIdentifier }
+            .filter { process in
+                !approvedProcessNames.contains(where: { approved in
+                    process.name.localizedCaseInsensitiveContains(approved)
+                })
+            }
     }
 
     private func startRecording(for process: AudioProcess) {
