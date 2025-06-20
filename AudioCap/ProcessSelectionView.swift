@@ -5,86 +5,94 @@ struct ProcessSelectionView: View {
     @State private var processController = AudioProcessController()
     @State private var tap: ProcessTap?
     @State private var recorder: ProcessTapRecorder?
-
     @State private var selectedProcess: AudioProcess?
+    @State private var timer: Timer? = nil
+    @State private var errorMessage: String? = nil
 
     var body: some View {
-        Section {
-            Picker("Process", selection: $selectedProcess) {
-                Text("Select…")
-                    .tag(Optional<AudioProcess>.none)
-
+        VStack(alignment: .leading) {
+            Text("Audio Processes")
+                .font(.headline)
+                .padding(.bottom, 4)
+            List {
                 ForEach(processController.processGroups) { group in
-                    Section {
+                    Section(header: Text(group.title)) {
                         ForEach(group.processes) { process in
                             HStack {
                                 Image(nsImage: process.icon)
                                     .resizable()
                                     .aspectRatio(contentMode: .fit)
                                     .frame(width: 16, height: 16)
-
                                 Text(process.name)
+                                    .font(.body)
+                                Spacer()
+                                // Indicator for audio activity
+                                Circle()
+                                    .fill(process.audioActive ? Color.green : Color.gray)
+                                    .frame(width: 12, height: 12)
+                                    .padding(.trailing, 4)
+                                // Record button only if process is active
+                                if process.audioActive {
+                                    Button(action: {
+                                        startRecording(for: process)
+                                    }) {
+                                        Image(systemName: "record.circle")
+                                            .foregroundColor(.red)
+                                    }
+                                    .buttonStyle(BorderlessButtonStyle())
+                                }
                             }
-                                .tag(Optional<AudioProcess>.some(process))
                         }
-                    } header: {
-                        Text(group.title)
                     }
                 }
             }
-            .disabled(recorder?.isRecording == true)
-            .task { processController.activate() }
-            .onChange(of: selectedProcess) { oldValue, newValue in
-                guard newValue != oldValue else { return }
-
-                if let newValue {
-                    setupRecording(for: newValue)
-                } else if oldValue == tap?.process {
-                    teardownTap()
-                }
+            .listStyle(.sidebar)
+            .frame(minHeight: 300)
+            .onAppear {
+                processController.activate()
+                startPolling()
             }
-        } header: {
-            Text("Source")
-                .font(.headline)
+            .onDisappear {
+                stopPolling()
+            }
         }
-
-        if let tap {
-            if let errorMessage = tap.errorMessage {
-                Text(errorMessage)
-                    .font(.headline)
-                    .foregroundStyle(.red)
-            } else if let recorder {
-                RecordingView(recorder: recorder)
-                    .onChange(of: recorder.isRecording) { wasRecording, isRecording in
-                        /// Each recorder instance can only record a single file, so we create a new file/recorder when recording stops.
-                        if wasRecording, !isRecording {
-                            createRecorder()
-                        }
+        if let errorMessage {
+            Text(errorMessage)
+                .font(.headline)
+                .foregroundStyle(.red)
+        }
+        if let recorder {
+            RecordingView(recorder: recorder)
+                .onChange(of: recorder.isRecording) { wasRecording, isRecording in
+                    if wasRecording, !isRecording {
+                        self.recorder = nil
+                        self.tap = nil
                     }
-            }
+                }
         }
     }
 
-    private func setupRecording(for process: AudioProcess) {
+    private func startRecording(for process: AudioProcess) {
         let newTap = ProcessTap(process: process)
         self.tap = newTap
         newTap.activate()
-
-        createRecorder()
-    }
-
-    private func createRecorder() {
-        guard let tap else { return }
-
-        let filename = "\(tap.process.name)-\(Int(Date.now.timeIntervalSinceReferenceDate))"
+        let filename = "\(process.name)-\(Int(Date.now.timeIntervalSinceReferenceDate))"
         let audioFileURL = URL.applicationSupport.appendingPathComponent(filename, conformingTo: .wav)
-
-        let newRecorder = ProcessTapRecorder(fileURL: audioFileURL, tap: tap)
+        let newRecorder = ProcessTapRecorder(fileURL: audioFileURL, tap: newTap)
         self.recorder = newRecorder
     }
 
-    private func teardownTap() {
-        tap = nil
+    private func startPolling() {
+        timer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { _ in
+            Task { @MainActor in
+                processController.activate() // This will refresh process list and audioActive
+            }
+        }
+    }
+
+    private func stopPolling() {
+        timer?.invalidate()
+        timer = nil
     }
 }
 
@@ -99,9 +107,9 @@ extension URL {
             return subdir
         } catch {
             assertionFailure("Failed to get application support directory: \(error)")
-
             return FileManager.default.temporaryDirectory
         }
     }
 }
+
 
