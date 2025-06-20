@@ -17,7 +17,7 @@ struct ProcessSelectionView: View {
             List {
                 ForEach(processController.processGroups) { group in
                     Section(header: Text(group.title)) {
-                        ForEach(group.processes) { process in
+                        ForEach(group.processes.filter { $0.id != ProcessInfo.processInfo.processIdentifier }) { process in
                             HStack {
                                 Image(nsImage: process.icon)
                                     .resizable()
@@ -33,13 +33,21 @@ struct ProcessSelectionView: View {
                                     .padding(.trailing, 4)
                                 // Record button only if process is active
                                 if process.audioActive {
-                                    Button(action: {
-                                        startRecording(for: process)
-                                    }) {
-                                        Image(systemName: "record.circle")
-                                            .foregroundColor(.red)
+                                    if let recorder, recorder.isRecording, recorder.process.id == process.id {
+                                        // Pulsating/animated record icon for active recording
+                                        PulsatingRecordButton {
+                                            recorder.stop()
+                                        }
+                                    } else {
+                                        // Static record icon for ready to record
+                                        Button(action: {
+                                            startRecording(for: process)
+                                        }) {
+                                            Image(systemName: "record.circle")
+                                                .foregroundColor(.red)
+                                        }
+                                        .buttonStyle(BorderlessButtonStyle())
                                     }
-                                    .buttonStyle(BorderlessButtonStyle())
                                 }
                             }
                         }
@@ -109,6 +117,25 @@ extension URL {
             assertionFailure("Failed to get application support directory: \(error)")
             return FileManager.default.temporaryDirectory
         }
+    }
+}
+
+struct PulsatingRecordButton: View {
+    var action: () -> Void
+    @State private var animate = false
+
+    var body: some View {
+        Button(action: action) {
+            Image(systemName: "record.circle.fill")
+                .foregroundColor(.red)
+                .scaleEffect(animate ? 1.2 : 1.0)
+                .shadow(color: .red.opacity(0.6), radius: animate ? 12 : 4)
+                .animation(.easeInOut(duration: 0.8).repeatForever(autoreverses: true), value: animate)
+        }
+        .buttonStyle(BorderlessButtonStyle())
+        .onAppear { animate = true }
+        .onDisappear { animate = false }
+        .help("Recording… Click to stop.")
     }
 }
 
