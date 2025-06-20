@@ -35,9 +35,9 @@ struct ProcessSelectionView: View {
                                 if process.audioActive {
                                     if let recorder, recorder.isRecording, recorder.process.id == process.id {
                                         // Pulsating/animated record icon for active recording
-                                        PulsatingRecordButton {
-                                            recorder.stop()
-                                        }
+                                        PulsatingRecordButton(action: { recorder.stop() }, showFile: {
+                                            NSWorkspace.shared.activateFileViewerSelecting([recorder.fileURL])
+                                        })
                                     } else {
                                         // Static record icon for ready to record
                                         Button(action: {
@@ -122,6 +122,7 @@ extension URL {
 
 struct PulsatingRecordButton: View {
     var action: () -> Void
+    var showFile: (() -> Void)? = nil
     @State private var animate = false
 
     var body: some View {
@@ -136,6 +137,12 @@ struct PulsatingRecordButton: View {
         .onAppear { animate = true }
         .onDisappear { animate = false }
         .help("Recording… Click to stop.")
+        .contextMenu {
+            Button("Stop Recording", action: action)
+            if let showFile {
+                Button("Show File Location", action: showFile)
+            }
+        }
     }
 }
 
