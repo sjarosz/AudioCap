@@ -18,7 +18,7 @@ func main() {
 
     do {
         try recorder.startRecording(pid: pid, outputFile: outputURL)
-        print("▶️ Recording from pid \(pid)... Press Enter to stop.")
+        print("▶️ Recording from pid \(pid) to file: \(outputURL.path)... Press Enter to stop.")
     } catch {
         print("❌ Failed to start recording: \(error)")
         return
