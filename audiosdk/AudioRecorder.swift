@@ -96,7 +96,13 @@ fileprivate final class ProcessTap {
             throw RecordingError.general("Failed to create AVAudioFormat from stream description.")
         }
 
-        let file = try AVAudioFile(forWriting: fileURL, settings: format.settings)
+        let settings: [String: Any] = [
+            AVFormatIDKey: tapStreamDescription.mFormatID,
+            AVSampleRateKey: format.sampleRate,
+            AVNumberOfChannelsKey: format.channelCount
+        ]
+
+        let file = try AVAudioFile(forWriting: fileURL, settings: settings, commonFormat: .pcmFormatFloat32, interleaved: format.isInterleaved)
         self.currentFile = file
 
         err = AudioDeviceCreateIOProcIDWithBlock(&deviceProcID, aggregateDeviceID, queue) { [weak self] _, inData, _, _, _ in
