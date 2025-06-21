@@ -106,11 +106,17 @@ fileprivate final class ProcessTap {
         self.currentFile = file
 
         err = AudioDeviceCreateIOProcIDWithBlock(&deviceProcID, aggregateDeviceID, queue) { [weak self] _, inData, _, _, _ in
-            guard let self = self, let pcmBuffer = AVAudioPCMBuffer(pcmFormat: format, bufferListNoCopy: inData) else { return }
+            guard let self, let currentFile = self.currentFile else { return }
+
+            guard let pcmBuffer = AVAudioPCMBuffer(pcmFormat: format, bufferListNoCopy: inData) else {
+                self.logger.warning("Failed to create PCM buffer from incoming data.")
+                return
+            }
+            
             do {
-                try self.currentFile?.write(from: pcmBuffer)
+                try currentFile.write(from: pcmBuffer)
             } catch {
-                self.logger.error("Failed to write audio buffer to file: \(error)")
+                self.logger.error("Failed to write audio buffer to file: \(error.localizedDescription)")
             }
         }
         guard err == noErr else { throw RecordingError.general("Failed to create IO proc: \(err)") }
@@ -126,6 +132,9 @@ fileprivate final class ProcessTap {
         guard isRecording else { return }
         
         logger.debug("Stopping recording...")
+
+        isRecording = false
+        currentFile = nil
 
         if aggregateDeviceID != .unknown, let procID = deviceProcID {
             _ = AudioDeviceStop(aggregateDeviceID, procID)
@@ -143,8 +152,6 @@ fileprivate final class ProcessTap {
             self.processTapID = .unknown
         }
         
-        currentFile = nil
-        isRecording = false
         logger.debug("Recording stopped and resources cleaned up.")
     }
 
