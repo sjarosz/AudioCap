@@ -376,7 +376,6 @@
 				MACOSX_DEPLOYMENT_TARGET = 15.5;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
-				SWIFT_OBJC_BRIDGING_HEADER = "audiosdk/audiosdk-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 6.0;
 			};
@@ -393,7 +392,6 @@
 				MACOSX_DEPLOYMENT_TARGET = 15.5;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
-				SWIFT_OBJC_BRIDGING_HEADER = "audiosdk/audiosdk-Bridging-Header.h";
 				SWIFT_VERSION = 6.0;
 			};
 			name = Release;
