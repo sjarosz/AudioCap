@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		597D832D2E0614CD0057B7AA /* AudioInputController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 597D832C2E0614C40057B7AA /* AudioInputController.swift */; };
+		597D832F2E061F440057B7AA /* MicrophoneRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 597D832E2E061F3C0057B7AA /* MicrophoneRecorder.swift */; };
 		F431728D2BF68C0C00D918A3 /* AudioRecordingPermission.swift in Sources */ = {isa = PBXBuildFile; fileRef = F431728C2BF68C0C00D918A3 /* AudioRecordingPermission.swift */; };
 		F43172902BF6A92900D918A3 /* AudioProcessController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F431728F2BF6A92900D918A3 /* AudioProcessController.swift */; };
 		F43172922BF6ABB000D918A3 /* ProcessSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F43172912BF6ABB000D918A3 /* ProcessSelectionView.swift */; };
@@ -24,6 +25,7 @@
 
 /* Begin PBXFileReference section */
 		597D832C2E0614C40057B7AA /* AudioInputController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioInputController.swift; sourceTree = "<group>"; };
+		597D832E2E061F3C0057B7AA /* MicrophoneRecorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MicrophoneRecorder.swift; sourceTree = "<group>"; };
 		F431728C2BF68C0C00D918A3 /* AudioRecordingPermission.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioRecordingPermission.swift; sourceTree = "<group>"; };
 		F431728E2BF691D900D918A3 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		F431728F2BF6A92900D918A3 /* AudioProcessController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioProcessController.swift; sourceTree = "<group>"; };
@@ -64,6 +66,7 @@
 		F431729F2BF7BD4700D918A3 /* ProcessTap */ = {
 			isa = PBXGroup;
 			children = (
+				597D832E2E061F3C0057B7AA /* MicrophoneRecorder.swift */,
 				597D832C2E0614C40057B7AA /* AudioInputController.swift */,
 				F431728C2BF68C0C00D918A3 /* AudioRecordingPermission.swift */,
 				F431728F2BF6A92900D918A3 /* AudioProcessController.swift */,
@@ -191,6 +194,7 @@
 				F43172922BF6ABB000D918A3 /* ProcessSelectionView.swift in Sources */,
 				F47AD9442BF5B61E005B75AC /* RootView.swift in Sources */,
 				F47AD9422BF5B61E005B75AC /* AudioCapApp.swift in Sources */,
+				597D832F2E061F440057B7AA /* MicrophoneRecorder.swift in Sources */,
 				597D832D2E0614CD0057B7AA /* AudioInputController.swift in Sources */,
 				F431728D2BF68C0C00D918A3 /* AudioRecordingPermission.swift in Sources */,
 				F431729A2BF7A51A00D918A3 /* RecordingView.swift in Sources */,

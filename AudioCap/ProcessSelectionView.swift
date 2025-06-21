@@ -6,6 +6,7 @@ struct ProcessSelectionView: View {
     @State private var inputController = AudioInputController()
     @State private var tap: ProcessTap?
     @State private var recorder: ProcessTapRecorder?
+    @State private var micRecorder: MicrophoneRecorder?
     @State private var selectedProcess: AudioProcess?
     @State private var selectedMicrophone: AudioDevice?
     @State private var timer: Timer? = nil
@@ -70,6 +71,7 @@ struct ProcessSelectionView: View {
                 .onChange(of: recorder.isRecording) { wasRecording, isRecording in
                     if wasRecording, !isRecording {
                         self.recorder = nil
+                        self.micRecorder = nil
                         self.tap = nil
                     }
                 }
@@ -106,8 +108,15 @@ struct ProcessSelectionView: View {
             // Record button only if process is active
             if process.audioActive {
                 if let recorder, recorder.isRecording, recorder.process.id == process.id {
-                    PulsatingRecordButton(action: { recorder.stop() }, showFile: {
-                        NSWorkspace.shared.activateFileViewerSelecting([recorder.fileURL])
+                    PulsatingRecordButton(action: {
+                        recorder.stop()
+                        micRecorder?.stop()
+                    }, showFile: {
+                        var urls = [recorder.fileURL]
+                        if let micURL = micRecorder?.fileURL {
+                            urls.append(micURL)
+                        }
+                        NSWorkspace.shared.activateFileViewerSelecting(urls)
                     })
                 } else {
                     Button(action: {
@@ -134,13 +143,27 @@ struct ProcessSelectionView: View {
     }
 
     private func startRecording(for process: AudioProcess) {
-        let newTap = ProcessTap(process: process, microphone: selectedMicrophone)
-        self.tap = newTap
-        newTap.activate()
-        let filename = "\(process.name)-\(Int(Date.now.timeIntervalSinceReferenceDate))"
-        let audioFileURL = URL.applicationSupport.appendingPathComponent(filename, conformingTo: .wav)
-        let newRecorder = ProcessTapRecorder(fileURL: audioFileURL, tap: newTap)
-        self.recorder = newRecorder
+        do {
+            let newTap = ProcessTap(process: process)
+            self.tap = newTap
+            newTap.activate()
+
+            let originalFilename = "\(process.name)-\(Int(Date.now.timeIntervalSinceReferenceDate))"
+
+            let appAudioURL = URL.applicationSupport.appendingPathComponent(originalFilename, conformingTo: .wav)
+            let newRecorder = ProcessTapRecorder(fileURL: appAudioURL, tap: newTap)
+            try newRecorder.start()
+            self.recorder = newRecorder
+
+            if let selectedMicrophone {
+                let micAudioURL = URL.applicationSupport.appendingPathComponent("\(originalFilename)-Mic", conformingTo: .wav)
+                let newMicRecorder = MicrophoneRecorder(fileURL: micAudioURL, device: selectedMicrophone)
+                try newMicRecorder.start()
+                self.micRecorder = newMicRecorder
+            }
+        } catch {
+            errorMessage = "Failed to start recording: \(error.localizedDescription)"
+        }
     }
 
     private func startPolling() {
