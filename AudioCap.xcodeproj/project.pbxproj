@@ -3,10 +3,12 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 56;
+	objectVersion = 70;
 	objects = {
 
 /* Begin PBXBuildFile section */
+		59ABA3002E06EAFA0019FC04 /* libaudiosdk.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 59ABA2E22E06E9EE0019FC04 /* libaudiosdk.dylib */; };
+		59ABA3012E06EAFA0019FC04 /* libaudiosdk.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 59ABA2E22E06E9EE0019FC04 /* libaudiosdk.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		F431728D2BF68C0C00D918A3 /* AudioRecordingPermission.swift in Sources */ = {isa = PBXBuildFile; fileRef = F431728C2BF68C0C00D918A3 /* AudioRecordingPermission.swift */; };
 		F43172902BF6A92900D918A3 /* AudioProcessController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F431728F2BF6A92900D918A3 /* AudioProcessController.swift */; };
 		F43172922BF6ABB000D918A3 /* ProcessSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F43172912BF6ABB000D918A3 /* ProcessSelectionView.swift */; };
@@ -21,7 +23,42 @@
 		F47AD9492BF5B61F005B75AC /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F47AD9482BF5B61F005B75AC /* Preview Assets.xcassets */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		59ABA3022E06EAFA0019FC04 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F47AD9362BF5B61E005B75AC /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 59ABA2E12E06E9EE0019FC04;
+			remoteInfo = audiosdk;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		59ABA2F62E06EAD30019FC04 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+		59ABA3042E06EAFA0019FC04 /* Embed Libraries */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				59ABA3012E06EAFA0019FC04 /* libaudiosdk.dylib in Embed Libraries */,
+			);
+			name = "Embed Libraries";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
+		59ABA2E22E06E9EE0019FC04 /* libaudiosdk.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libaudiosdk.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		59ABA2F82E06EAD30019FC04 /* TestSDK */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = TestSDK; sourceTree = BUILT_PRODUCTS_DIR; };
 		F431728C2BF68C0C00D918A3 /* AudioRecordingPermission.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioRecordingPermission.swift; sourceTree = "<group>"; };
 		F431728E2BF691D900D918A3 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		F431728F2BF6A92900D918A3 /* AudioProcessController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioProcessController.swift; sourceTree = "<group>"; };
@@ -40,7 +77,37 @@
 		F47AD94A2BF5B61F005B75AC /* AudioCap.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = AudioCap.entitlements; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		59ABA2F32E06EA710019FC04 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				"audiosdk-Bridging-Header.h",
+			);
+			target = 59ABA2E12E06E9EE0019FC04 /* audiosdk */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		59ABA2E32E06E9EE0019FC04 /* audiosdk */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (59ABA2F32E06EA710019FC04 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = audiosdk; sourceTree = "<group>"; };
+		59ABA2F92E06EAD30019FC04 /* TestSDK */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = TestSDK; sourceTree = "<group>"; };
+/* End PBXFileSystemSynchronizedRootGroup section */
+
 /* Begin PBXFrameworksBuildPhase section */
+		59ABA2E02E06E9EE0019FC04 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		59ABA2F52E06EAD30019FC04 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				59ABA3002E06EAFA0019FC04 /* libaudiosdk.dylib in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		F47AD93B2BF5B61E005B75AC /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -51,6 +118,13 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		59ABA2FF2E06EAFA0019FC04 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		F431729D2BF7BB0600D918A3 /* Config */ = {
 			isa = PBXGroup;
 			children = (
@@ -74,6 +148,9 @@
 			isa = PBXGroup;
 			children = (
 				F47AD9402BF5B61E005B75AC /* AudioCap */,
+				59ABA2E32E06E9EE0019FC04 /* audiosdk */,
+				59ABA2F92E06EAD30019FC04 /* TestSDK */,
+				59ABA2FF2E06EAFA0019FC04 /* Frameworks */,
 				F47AD93F2BF5B61E005B75AC /* Products */,
 			);
 			sourceTree = "<group>";
@@ -82,6 +159,8 @@
 			isa = PBXGroup;
 			children = (
 				F47AD93E2BF5B61E005B75AC /* AudioCap.app */,
+				59ABA2E22E06E9EE0019FC04 /* libaudiosdk.dylib */,
+				59ABA2F82E06EAD30019FC04 /* TestSDK */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -115,7 +194,63 @@
 		};
 /* End PBXGroup section */
 
+/* Begin PBXHeadersBuildPhase section */
+		59ABA2DE2E06E9EE0019FC04 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
 /* Begin PBXNativeTarget section */
+		59ABA2E12E06E9EE0019FC04 /* audiosdk */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 59ABA2EA2E06E9EE0019FC04 /* Build configuration list for PBXNativeTarget "audiosdk" */;
+			buildPhases = (
+				59ABA2DE2E06E9EE0019FC04 /* Headers */,
+				59ABA2DF2E06E9EE0019FC04 /* Sources */,
+				59ABA2E02E06E9EE0019FC04 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				59ABA2E32E06E9EE0019FC04 /* audiosdk */,
+			);
+			name = audiosdk;
+			packageProductDependencies = (
+			);
+			productName = audiosdk;
+			productReference = 59ABA2E22E06E9EE0019FC04 /* libaudiosdk.dylib */;
+			productType = "com.apple.product-type.library.dynamic";
+		};
+		59ABA2F72E06EAD30019FC04 /* TestSDK */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 59ABA2FC2E06EAD30019FC04 /* Build configuration list for PBXNativeTarget "TestSDK" */;
+			buildPhases = (
+				59ABA2F42E06EAD30019FC04 /* Sources */,
+				59ABA2F52E06EAD30019FC04 /* Frameworks */,
+				59ABA2F62E06EAD30019FC04 /* CopyFiles */,
+				59ABA3042E06EAFA0019FC04 /* Embed Libraries */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				59ABA3032E06EAFA0019FC04 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				59ABA2F92E06EAD30019FC04 /* TestSDK */,
+			);
+			name = TestSDK;
+			packageProductDependencies = (
+			);
+			productName = TestSDK;
+			productReference = 59ABA2F82E06EAD30019FC04 /* TestSDK */;
+			productType = "com.apple.product-type.tool";
+		};
 		F47AD93D2BF5B61E005B75AC /* AudioCap */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = F47AD94D2BF5B61F005B75AC /* Build configuration list for PBXNativeTarget "AudioCap" */;
@@ -140,9 +275,16 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 1530;
+				LastSwiftUpdateCheck = 1640;
 				LastUpgradeCheck = 1530;
 				TargetAttributes = {
+					59ABA2E12E06E9EE0019FC04 = {
+						CreatedOnToolsVersion = 16.4;
+						LastSwiftMigration = 1640;
+					};
+					59ABA2F72E06EAD30019FC04 = {
+						CreatedOnToolsVersion = 16.4;
+					};
 					F47AD93D2BF5B61E005B75AC = {
 						CreatedOnToolsVersion = 15.3;
 					};
@@ -162,6 +304,8 @@
 			projectRoot = "";
 			targets = (
 				F47AD93D2BF5B61E005B75AC /* AudioCap */,
+				59ABA2E12E06E9EE0019FC04 /* audiosdk */,
+				59ABA2F72E06EAD30019FC04 /* TestSDK */,
 			);
 		};
 /* End PBXProject section */
@@ -179,6 +323,20 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		59ABA2DF2E06E9EE0019FC04 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		59ABA2F42E06EAD30019FC04 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		F47AD93A2BF5B61E005B75AC /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -198,7 +356,68 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		59ABA3032E06EAFA0019FC04 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 59ABA2E12E06E9EE0019FC04 /* audiosdk */;
+			targetProxy = 59ABA3022E06EAFA0019FC04 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
+		59ABA2E82E06E9EE0019FC04 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				EXECUTABLE_PREFIX = lib;
+				MACOSX_DEPLOYMENT_TARGET = 15.5;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "audiosdk/audiosdk-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+		59ABA2E92E06E9EE0019FC04 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				EXECUTABLE_PREFIX = lib;
+				MACOSX_DEPLOYMENT_TARGET = 15.5;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "audiosdk/audiosdk-Bridging-Header.h";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
+		59ABA2FD2E06EAD30019FC04 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				MACOSX_DEPLOYMENT_TARGET = 15.5;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		59ABA2FE2E06EAD30019FC04 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				MACOSX_DEPLOYMENT_TARGET = 15.5;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
 		F47AD94B2BF5B61F005B75AC /* Debug */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = F431729E2BF7BB0E00D918A3 /* Main.xcconfig */;
@@ -377,6 +596,24 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		59ABA2EA2E06E9EE0019FC04 /* Build configuration list for PBXNativeTarget "audiosdk" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				59ABA2E82E06E9EE0019FC04 /* Debug */,
+				59ABA2E92E06E9EE0019FC04 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		59ABA2FC2E06EAD30019FC04 /* Build configuration list for PBXNativeTarget "TestSDK" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				59ABA2FD2E06EAD30019FC04 /* Debug */,
+				59ABA2FE2E06EAD30019FC04 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		F47AD9392BF5B61E005B75AC /* Build configuration list for PBXProject "AudioCap" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
