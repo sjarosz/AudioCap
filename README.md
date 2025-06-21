@@ -1,6 +1,7 @@
 # AudioCap
 
 
+
 With macOS 14.4, Apple introduced new API in CoreAudio that allows any app to capture audio from other apps or the entire system, as long as the user has given the app permission to do so.
 
 Unfortunately this new API is poorly documented and the nature of CoreAudio makes it really hard to figure out exactly how to set things up so that your app can use this new functionality.
