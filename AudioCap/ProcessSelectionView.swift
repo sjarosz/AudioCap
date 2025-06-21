@@ -143,26 +143,42 @@ struct ProcessSelectionView: View {
     }
 
     private func startRecording(for process: AudioProcess) {
-        do {
+        if let selectedMicrophone {
+            // Dual recording mode - app + microphone
+            do {
+                let newTap = ProcessTap(process: process)
+                self.tap = newTap
+                newTap.activate()
+
+                let originalFilename = "\(process.name)-\(Int(Date.now.timeIntervalSinceReferenceDate))"
+
+                let appAudioURL = URL.applicationSupport.appendingPathComponent(originalFilename, conformingTo: .wav)
+                let newRecorder = ProcessTapRecorder(fileURL: appAudioURL, tap: newTap)
+                try newRecorder.start()
+                self.recorder = newRecorder
+
+                do {
+                    let micAudioURL = URL.applicationSupport.appendingPathComponent("\(originalFilename)-Mic", conformingTo: .wav)
+                    let newMicRecorder = MicrophoneRecorder(fileURL: micAudioURL, device: selectedMicrophone)
+                    try newMicRecorder.start()
+                    self.micRecorder = newMicRecorder
+                } catch {
+                    // If mic recording fails, we still have the app recording, so just log the error
+                    // logger.error("Failed to start microphone recording: \(error.localizedDescription)")
+                    errorMessage = "App recording started, but microphone recording failed: \(error.localizedDescription)"
+                }
+            } catch {
+                errorMessage = "Failed to start app recording: \(error.localizedDescription)"
+            }
+        } else {
+            // Original single recording mode - app only (exactly as it was before)
             let newTap = ProcessTap(process: process)
             self.tap = newTap
             newTap.activate()
-
-            let originalFilename = "\(process.name)-\(Int(Date.now.timeIntervalSinceReferenceDate))"
-
-            let appAudioURL = URL.applicationSupport.appendingPathComponent(originalFilename, conformingTo: .wav)
-            let newRecorder = ProcessTapRecorder(fileURL: appAudioURL, tap: newTap)
-            try newRecorder.start()
+            let filename = "\(process.name)-\(Int(Date.now.timeIntervalSinceReferenceDate))"
+            let audioFileURL = URL.applicationSupport.appendingPathComponent(filename, conformingTo: .wav)
+            let newRecorder = ProcessTapRecorder(fileURL: audioFileURL, tap: newTap)
             self.recorder = newRecorder
-
-            if let selectedMicrophone {
-                let micAudioURL = URL.applicationSupport.appendingPathComponent("\(originalFilename)-Mic", conformingTo: .wav)
-                let newMicRecorder = MicrophoneRecorder(fileURL: micAudioURL, device: selectedMicrophone)
-                try newMicRecorder.start()
-                self.micRecorder = newMicRecorder
-            }
-        } catch {
-            errorMessage = "Failed to start recording: \(error.localizedDescription)"
         }
     }
 

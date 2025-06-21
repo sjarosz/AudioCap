@@ -36,6 +36,16 @@ final class MicrophoneRecorder {
             return
         }
 
+        guard deviceID.isValid else {
+            throw "Invalid microphone device ID"
+        }
+
+        // Check if device is actually available
+        let isRunning = try deviceID.read(kAudioDevicePropertyDeviceIsRunning, defaultValue: 0)
+        guard isRunning == 1 else {
+            throw "Microphone device is not running"
+        }
+
         streamDescription = try deviceID.read(kAudioDevicePropertyStreamFormat, scope: kAudioObjectPropertyScopeInput, defaultValue: AudioStreamBasicDescription())
 
         guard var streamDescription else {
@@ -45,6 +55,8 @@ final class MicrophoneRecorder {
         guard let format = AVAudioFormat(streamDescription: &streamDescription) else {
             throw "Failed to create AVAudioFormat for mic."
         }
+        
+        logger.info("Using microphone format: \(format, privacy: .public)")
         
         let file = try AVAudioFile(forWriting: fileURL, settings: format.settings, commonFormat: format.commonFormat, interleaved: format.isInterleaved)
         self.currentFile = file
@@ -62,12 +74,19 @@ final class MicrophoneRecorder {
             }
         }
 
-        guard err == noErr else { throw "Failed to create mic I/O proc: \(err)" }
+        guard err == noErr else { 
+            let errorString = String(format: "0x%08X", err)
+            throw "Failed to create mic I/O proc: \(err) (\(errorString))" 
+        }
 
         err = AudioDeviceStart(deviceID, deviceProcID)
-        guard err == noErr else { throw "Failed to start mic device: \(err)" }
+        guard err == noErr else { 
+            let errorString = String(format: "0x%08X", err)
+            throw "Failed to start mic device: \(err) (\(errorString))" 
+        }
 
         isRecording = true
+        logger.info("Microphone recording started successfully")
     }
 
     func stop() {

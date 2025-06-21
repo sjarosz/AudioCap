@@ -23,6 +23,8 @@ final class ProcessTap {
     @ObservationIgnored
     private var processTapID: AudioObjectID = .unknown
     @ObservationIgnored
+    private var aggregateDeviceID = AudioObjectID.unknown
+    @ObservationIgnored
     private var deviceProcID: AudioDeviceIOProcID?
     @ObservationIgnored
     private(set) var tapStreamDescription: AudioStreamBasicDescription?
@@ -58,17 +60,25 @@ final class ProcessTap {
         invalidationHandler?(self)
         self.invalidationHandler = nil
 
-        if processTapID.isValid {
-            var err = AudioDeviceStop(processTapID, deviceProcID)
-            if err != noErr { logger.warning("Failed to stop tap device: \(err, privacy: .public)") }
+        if aggregateDeviceID.isValid {
+            var err = AudioDeviceStop(aggregateDeviceID, deviceProcID)
+            if err != noErr { logger.warning("Failed to stop aggregate device: \(err, privacy: .public)") }
 
             if let deviceProcID {
-                err = AudioDeviceDestroyIOProcID(processTapID, deviceProcID)
+                err = AudioDeviceDestroyIOProcID(aggregateDeviceID, deviceProcID)
                 if err != noErr { logger.warning("Failed to destroy device I/O proc: \(err, privacy: .public)") }
                 self.deviceProcID = nil
             }
 
-            err = AudioHardwareDestroyProcessTap(processTapID)
+            err = AudioHardwareDestroyAggregateDevice(aggregateDeviceID)
+            if err != noErr {
+                logger.warning("Failed to destroy aggregate device: \(err, privacy: .public)")
+            }
+            aggregateDeviceID = .unknown
+        }
+
+        if processTapID.isValid {
+            let err = AudioHardwareDestroyProcessTap(processTapID)
             if err != noErr {
                 logger.warning("Failed to destroy audio tap: \(err, privacy: .public)")
             }
@@ -94,7 +104,41 @@ final class ProcessTap {
 
         self.processTapID = tapID
 
+        let systemOutputID = try AudioDeviceID.readDefaultSystemOutputDevice()
+
+        let outputUID = try systemOutputID.readDeviceUID()
+
+        let aggregateUID = UUID().uuidString
+
+        let description: [String: Any] = [
+            kAudioAggregateDeviceNameKey: "Tap-\(process.id)",
+            kAudioAggregateDeviceUIDKey: aggregateUID,
+            kAudioAggregateDeviceMainSubDeviceKey: outputUID,
+            kAudioAggregateDeviceIsPrivateKey: true,
+            kAudioAggregateDeviceIsStackedKey: false,
+            kAudioAggregateDeviceTapAutoStartKey: true,
+            kAudioAggregateDeviceSubDeviceListKey: [
+                [
+                    kAudioSubDeviceUIDKey: outputUID
+                ]
+            ],
+            kAudioAggregateDeviceTapListKey: [
+                [
+                    kAudioSubTapDriftCompensationKey: true,
+                    kAudioSubTapUIDKey: tapDescription.uuid.uuidString
+                ]
+            ]
+        ]
+
         self.tapStreamDescription = try tapID.readAudioTapStreamBasicDescription()
+
+        aggregateDeviceID = AudioObjectID.unknown
+        err = AudioHardwareCreateAggregateDevice(description as CFDictionary, &aggregateDeviceID)
+        guard err == noErr else {
+            throw "Failed to create aggregate device: \(err)"
+        }
+
+        logger.debug("Created aggregate device #\(self.aggregateDeviceID, privacy: .public)")
     }
 
     func run(on queue: DispatchQueue, ioBlock: @escaping AudioDeviceIOBlock, invalidationHandler: @escaping InvalidationHandler) throws {
@@ -107,10 +151,10 @@ final class ProcessTap {
 
         self.invalidationHandler = invalidationHandler
 
-        var err = AudioDeviceCreateIOProcIDWithBlock(&deviceProcID, processTapID, queue, ioBlock)
+        var err = AudioDeviceCreateIOProcIDWithBlock(&deviceProcID, aggregateDeviceID, queue, ioBlock)
         guard err == noErr else { throw "Failed to create device I/O proc: \(err)" }
 
-        err = AudioDeviceStart(processTapID, deviceProcID)
+        err = AudioDeviceStart(aggregateDeviceID, deviceProcID)
         guard err == noErr else { throw "Failed to start audio device: \(err)" }
     }
 
